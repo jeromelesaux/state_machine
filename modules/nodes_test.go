@@ -85,6 +85,18 @@ func TestReplaceNode(t *testing.T) {
 	}
 }
 
+func TestReplaceFunctionNode(t *testing.T) {
+	motherNode := NewNode(nil, "root node")
+	srcNode := NewNode(motherNode, "source node")
+	newNode := NewNode(nil, "new node")
+	motherNode.Print()
+	srcNode.ReplaceByThisNode(newNode)
+	motherNode.Print()
+	if motherNode.Children[0] != newNode {
+		t.Fatalf("expetected node %v and results %v", newNode, motherNode.Children[0])
+	}
+}
+
 type message struct {
 	M string
 }

@@ -86,6 +86,35 @@ func setMother(children []*Node, mother *Node) {
 	}
 }
 
+func (n *Node)ReplaceByThisNode(newnode *Node) *Node {
+	// set the new mother pointer
+	newnode.Mother = n.Mother
+
+	// remove the srcnode from mother's children
+	children := newnode.Mother.Children
+	newnode.Mother.Children = make([]*Node, 0)
+	for _, child := range children {
+		if child != n {
+			newnode.Mother.Children = append(newnode.Mother.Children, child)
+		} else {
+			// 	add the newnode in mother's children
+			newnode.Mother.Children = append(newnode.Mother.Children, newnode)
+		}
+	}
+
+	// add all srcnode children to newnode
+	for _, child := range n.Children {
+		if child != nil {
+			newnode.Children = append(newnode.Children, child)
+		}
+	}
+
+	n.Mother = nil
+	n.Children = make([]*Node, 0)
+
+	return newnode
+}
+
 func replaceNode(srcNode, newNode *Node) *Node {
 
 	// set the new mother pointer
