@@ -7,7 +7,7 @@ import (
 )
 
 type Node struct {
-	Mother    *Node        `json:"-"`
+	Parent    *Node        `json:"-"`
 	Children  []*Node      `json:"children,omitempty"`
 	Interface *interface{} `json:"Interface,omitempty"`
 	Label     string       `json:"label,omitempty"`
@@ -20,8 +20,8 @@ func (n *Node) Print() {
 		value = fmt.Sprint(*n.Interface)
 	}
 
-	fmt.Printf("node label (%s) mother node (%v) has (%d) children and Interface is (%#v) interface ToString(%s)\n",
-		n.Label, n.Mother,
+	fmt.Printf("node label (%s) Parent node (%v) has (%d) children and Interface is (%#v) interface ToString(%s)\n",
+		n.Label, n.Parent,
 		len(n.Children),
 		n.Interface,
 		value)
@@ -32,22 +32,22 @@ func (n *Node) Print() {
 	}
 }
 
-func NewNodeWithInterface(mother *Node, label string, i interface{}) *Node {
-	newNode := NewNode(mother, label)
+func NewNodeWithInterface(parent *Node, label string, i interface{}) *Node {
+	newNode := NewNode(parent, label)
 	newNode.Interface = &i
 	return newNode
 }
 
-func NewNode(mother *Node, label string) *Node {
+func NewNode(parent *Node, label string) *Node {
 
 	newNode := &Node{
 		Children: make([]*Node, 0),
 		Label:    label,
 	}
-	if mother != nil {
-		newNode.Mother = mother
-		if mother.Children != nil {
-			mother.Children = append(mother.Children, newNode)
+	if parent != nil {
+		newNode.Parent = parent
+		if parent.Children != nil {
+			parent.Children = append(parent.Children, newNode)
 		}
 	}
 
@@ -74,31 +74,31 @@ func LoadNodes(filepath string) *Node {
 		return node
 	}
 
-	setMother(node.Children, node)
+	setParent(node.Children, node)
 
 	return node
 }
 
-func setMother(children []*Node, mother *Node) {
+func setParent(children []*Node, Parent *Node) {
 	for _, n := range children {
-		n.Mother = mother
-		setMother(n.Children, n)
+		n.Parent = Parent
+		setParent(n.Children, n)
 	}
 }
 
-func (n *Node)ReplaceByThisNode(newnode *Node) *Node {
-	// set the new mother pointer
-	newnode.Mother = n.Mother
+func (n *Node) ReplaceByThisNode(newnode *Node) *Node {
+	// set the new Parent pointer
+	newnode.Parent = n.Parent
 
-	// remove the srcnode from mother's children
-	children := newnode.Mother.Children
-	newnode.Mother.Children = make([]*Node, 0)
+	// remove the srcnode from Parent's children
+	children := newnode.Parent.Children
+	newnode.Parent.Children = make([]*Node, 0)
 	for _, child := range children {
 		if child != n {
-			newnode.Mother.Children = append(newnode.Mother.Children, child)
+			newnode.Parent.Children = append(newnode.Parent.Children, child)
 		} else {
-			// 	add the newnode in mother's children
-			newnode.Mother.Children = append(newnode.Mother.Children, newnode)
+			// 	add the newnode in Parent's children
+			newnode.Parent.Children = append(newnode.Parent.Children, newnode)
 		}
 	}
 
@@ -109,7 +109,7 @@ func (n *Node)ReplaceByThisNode(newnode *Node) *Node {
 		}
 	}
 
-	n.Mother = nil
+	n.Parent = nil
 	n.Children = make([]*Node, 0)
 
 	return newnode
@@ -117,18 +117,18 @@ func (n *Node)ReplaceByThisNode(newnode *Node) *Node {
 
 func replaceNode(srcNode, newNode *Node) *Node {
 
-	// set the new mother pointer
-	newNode.Mother = srcNode.Mother
+	// set the new Parent pointer
+	newNode.Parent = srcNode.Parent
 
-	// remove the srcnode from mother's children
-	children := newNode.Mother.Children
-	newNode.Mother.Children = make([]*Node, 0)
+	// remove the srcnode from Parent's children
+	children := newNode.Parent.Children
+	newNode.Parent.Children = make([]*Node, 0)
 	for _, child := range children {
 		if child != srcNode {
-			newNode.Mother.Children = append(newNode.Mother.Children, child)
+			newNode.Parent.Children = append(newNode.Parent.Children, child)
 		} else {
-			// 	add the newnode in mother's children
-			newNode.Mother.Children = append(newNode.Mother.Children, newNode)
+			// 	add the newnode in Parent's children
+			newNode.Parent.Children = append(newNode.Parent.Children, newNode)
 		}
 	}
 
@@ -139,7 +139,7 @@ func replaceNode(srcNode, newNode *Node) *Node {
 		}
 	}
 
-	srcNode.Mother = nil
+	srcNode.Parent = nil
 	srcNode.Children = make([]*Node, 0)
 
 	return newNode
